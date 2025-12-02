@@ -146,7 +146,7 @@ const GalaxyDashboard: React.FC = () => {
 
   return (
     <motion.div
-      className="relative w-full h-screen bg-[#050505] overflow-hidden cursor-crosshair"
+      className="relative w-full h-screen bg-[#050505] overflow-hidden cursor-crosshair touch-action-none"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 2 }}
