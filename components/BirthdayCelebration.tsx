@@ -80,15 +80,15 @@ const BirthdayCelebration: React.FC = () => {
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 100, delay: 0.5 }}
-        className="relative text-center z-30"
+        className="relative text-center z-30 px-4"
       >
-        <h1 className="text-4xl md:text-7xl font-bold font-mono text-white mb-4 tracking-tighter drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">
+        <h1 className="font-cinzel text-5xl md:text-8xl font-bold text-yellow-400 mb-6 tracking-wide drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">
           HAPPY BIRTHDAY
         </h1>
         <motion.div 
-          className="text-2xl md:text-5xl font-mono text-yellow-400 font-bold uppercase tracking-widest"
+          className="font-cinzel text-3xl md:text-6xl text-white font-bold uppercase tracking-widest drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]"
           animate={{ 
-            textShadow: ["0 0 10px #facc15", "0 0 40px #facc15", "0 0 10px #facc15"],
+            textShadow: ["0 0 15px #ffffff", "0 0 40px #facc15", "0 0 15px #ffffff"],
             scale: [1, 1.05, 1] 
           }}
           transition={{ duration: 2, repeat: Infinity }}

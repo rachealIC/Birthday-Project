@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { calculateLevel, calculateXP, NAME } from '../utils';
+import { calculateLevel, calculateXP, NAME, TARGET_DATE } from '../utils';
 import { Target, Zap, Heart, User, Crown } from 'lucide-react';
 
 interface HUDProps {
@@ -8,7 +8,12 @@ interface HUDProps {
 }
 
 const HUD: React.FC<HUDProps> = ({ isLegendary = false }) => {
-  const level = useMemo(() => calculateLevel(), []);
+  // If Legendary (Birthday Mode), we calculate the level based on the TARGET_DATE
+  // This ensures the age flips visually even if the user is simulating the event.
+  const level = useMemo(() => {
+    return isLegendary ? calculateLevel(TARGET_DATE) : calculateLevel();
+  }, [isLegendary]);
+
   const xp = useMemo(() => calculateXP(), []);
 
   return (
@@ -18,26 +23,26 @@ const HUD: React.FC<HUDProps> = ({ isLegendary = false }) => {
       transition={{ delay: 1, duration: 1 }}
       className="absolute top-6 left-6 md:top-10 md:left-10 z-30 pointer-events-none select-none max-w-[80vw] md:max-w-[60vw]"
     >
-      <div className="flex flex-col gap-3 md:gap-2 font-mono text-sm md:text-base">
+      <div className="flex flex-col gap-3 md:gap-2 font-mono text-xs md:text-base">
         
         {/* Pilot Name */}
         <div className="flex items-center gap-3 text-white/80">
           <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-purple-400" />
-          <span className="tracking-widest text-xs uppercase text-purple-400">Pilot</span>
+          <span className="tracking-widest text-[10px] md:text-xs uppercase text-purple-400">Pilot</span>
           <span className="text-sm md:text-sm font-bold text-white uppercase truncate">{NAME}</span>
         </div>
 
         {/* Level Stat */}
         <div className="flex items-center gap-3 text-white/80">
           <Target className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-400" />
-          <span className="tracking-widest text-xs uppercase text-green-400">Level</span>
+          <span className="tracking-widest text-[10px] md:text-xs uppercase text-green-400">Level</span>
           <span className="text-lg md:text-xl font-bold text-white">{level}</span>
         </div>
 
         {/* XP Stat */}
         <div className="flex items-center gap-3 text-white/80">
           <Zap className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-400" />
-          <span className="tracking-widest text-xs uppercase text-blue-400">XP (Days)</span>
+          <span className="tracking-widest text-[10px] md:text-xs uppercase text-blue-400">XP (Days)</span>
           <span className="text-lg md:text-xl font-bold text-white">{xp.toLocaleString()}</span>
         </div>
 
@@ -48,7 +53,7 @@ const HUD: React.FC<HUDProps> = ({ isLegendary = false }) => {
           ) : (
             <Heart className="w-3.5 h-3.5 md:w-4 md:h-4 text-yellow-500 animate-pulse" />
           )}
-          <span className="tracking-widest text-xs uppercase text-yellow-500">Status</span>
+          <span className="tracking-widest text-[10px] md:text-xs uppercase text-yellow-500">Status</span>
           
           <AnimatePresence mode="wait">
             {isLegendary ? (

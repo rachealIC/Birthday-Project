@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { StarData, Coordinates } from '../types';
 import { generateId, AFFIRMATIONS, TARGET_DATE, INITIAL_STARS } from '../utils';
@@ -13,8 +13,11 @@ import AffirmationModal from './AffirmationModal';
 import ViewMemoryModal from './ViewMemoryModal';
 import BirthdayCountdown from './BirthdayCountdown';
 import BirthdayCelebration from './BirthdayCelebration';
+import LaunchSequence from './LaunchSequence';
 import CommsModal from './CommsModal';
 import CometsLayer from './CometsLayer';
+
+type BirthdayPhase = 'countdown' | 'launch' | 'celebration';
 
 const GalaxyDashboard: React.FC = () => {
   // Initialize state from local storage if available, otherwise use Museum Mode defaults
@@ -23,9 +26,6 @@ const GalaxyDashboard: React.FC = () => {
       const saved = localStorage.getItem('constellation_memories');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // If user cleared their stars, we might still want to show initial ones? 
-        // For this logic, if saved exists (even empty array), we respect it.
-        // If it's null (first visit), we use INITIAL_STARS.
         return parsed.length > 0 ? parsed : INITIAL_STARS;
       }
       return INITIAL_STARS;
@@ -48,25 +48,28 @@ const GalaxyDashboard: React.FC = () => {
   // Star View State
   const [selectedStar, setSelectedStar] = useState<StarData | null>(null);
 
-  // Birthday State
-  const [isBirthday, setIsBirthday] = useState(false);
+  // Birthday State Phase
+  const [birthdayPhase, setBirthdayPhase] = useState<BirthdayPhase>('countdown');
 
   const [pendingCoords, setPendingCoords] = useState<Coordinates | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Check Birthday Protocol
   useEffect(() => {
     const checkDate = () => {
       const now = new Date();
+      // If we are past the target date
       if (now >= TARGET_DATE) {
-        setIsBirthday(true);
-      } else {
-        setIsBirthday(false);
+        // If we are currently in countdown mode, trigger launch
+        // We use a functional state update to ensure we don't restart launch if already launching/celebrating
+        setBirthdayPhase(prev => {
+          if (prev === 'countdown') return 'launch';
+          return prev;
+        });
       }
     };
     
     checkDate();
-    const timer = setInterval(checkDate, 1000); // Re-check every second to switch smoothly
+    const timer = setInterval(checkDate, 1000); 
     return () => clearInterval(timer);
   }, []);
 
@@ -75,32 +78,32 @@ const GalaxyDashboard: React.FC = () => {
     localStorage.setItem('constellation_memories', JSON.stringify(stars));
   }, [stars]);
 
+  const handleLaunchComplete = () => {
+    setBirthdayPhase('celebration');
+  };
+
   const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only trigger if clicking directly on the background, not on a star or modal
     if (e.target !== e.currentTarget) return;
 
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-      // Overlap Check: Ensure new star isn't too close to existing stars
-      // We use a simple distance formula on percentages. 
-      // Threshold is 5% distance.
-      const isOverlapping = stars.some(star => {
-        const dx = star.x - x;
-        const dy = star.y - y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        return distance < 6; // 6% threshold
-      });
+    // Overlap Check: Ensure new star isn't too close to existing stars
+    const isOverlapping = stars.some(star => {
+      const dx = star.x - x;
+      const dy = star.y - y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return distance < 6; // 6% threshold
+    });
 
-      if (isOverlapping) {
-        return;
-      }
-      
-      setPendingCoords({ x, y });
-      setModalOpen(true);
+    if (isOverlapping) {
+      return;
     }
+    
+    setPendingCoords({ x, y });
+    setModalOpen(true);
   };
 
   const handleIgnite = (memory: string) => {
@@ -123,7 +126,6 @@ const GalaxyDashboard: React.FC = () => {
   };
 
   const handleSignalClick = () => {
-    // Pick random affirmation
     const randomIndex = Math.floor(Math.random() * AFFIRMATIONS.length);
     setCurrentAffirmation(AFFIRMATIONS[randomIndex]);
     setAffirmationOpen(true);
@@ -131,17 +133,19 @@ const GalaxyDashboard: React.FC = () => {
 
   const toggleAllies = () => {
     setAlliesOpen(!alliesOpen);
-    if (!alliesOpen) setCommsOpen(false); // Close other modal
+    if (!alliesOpen) setCommsOpen(false);
   };
 
   const toggleComms = () => {
     setCommsOpen(!commsOpen);
-    if (!commsOpen) setAlliesOpen(false); // Close other modal
+    if (!commsOpen) setAlliesOpen(false);
   };
+
+  // Derived state for passing to HUD
+  const isBirthdayActive = birthdayPhase === 'launch' || birthdayPhase === 'celebration';
 
   return (
     <motion.div
-      ref={containerRef}
       className="relative w-full h-screen bg-[#050505] overflow-hidden cursor-crosshair"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -152,49 +156,36 @@ const GalaxyDashboard: React.FC = () => {
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(20,20,30,0.4)_0%,_rgba(5,5,5,1)_100%)]" />
         
-        {/* Distant stars static layer 1 - Slow drift */}
+        {/* Distant stars static layer 1 */}
         <motion.div 
           className="absolute inset-0 opacity-40" 
           style={{ backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '50px 50px' }}
-          animate={{ 
-            backgroundPosition: ["0px 0px", "50px 50px"],
-          }}
-          transition={{ 
-            duration: 60, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
+          animate={{ backgroundPosition: ["0px 0px", "50px 50px"] }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
         />
         
-        {/* Distant stars layer 2 - Smaller, Slower drift for parallax */}
+        {/* Distant stars layer 2 */}
         <motion.div 
           className="absolute inset-0 opacity-20" 
           style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '120px 120px' }}
-          animate={{ 
-            backgroundPosition: ["0px 0px", "-60px 60px"],
-          }}
-          transition={{ 
-            duration: 120, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
+          animate={{ backgroundPosition: ["0px 0px", "-60px 60px"] }}
+          transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
         />
       </div>
 
-      {/* --- SOLAR SYSTEM LAYER (Background Planets) --- */}
+      {/* --- BACKGROUND LAYERS --- */}
       <SolarSystem />
-      
-      {/* --- COMETS LAYER --- */}
       <CometsLayer />
 
-      <HUD isLegendary={isBirthday} />
+      {/* --- HUD --- */}
+      <HUD isLegendary={isBirthdayActive} />
 
       {/* --- PROTOCOL LAYERS --- */}
-      {isBirthday ? <BirthdayCelebration /> : <BirthdayCountdown />}
+      {birthdayPhase === 'countdown' && <BirthdayCountdown />}
+      {birthdayPhase === 'launch' && <LaunchSequence onComplete={handleLaunchComplete} />}
+      {birthdayPhase === 'celebration' && <BirthdayCelebration />}
 
       {/* --- CONTROLS --- */}
-
-      {/* Top Right Controls Container */}
       <div className="absolute top-6 right-6 md:top-10 md:right-10 z-30 flex gap-2 md:gap-3">
         {/* Allies Button */}
         <button
@@ -215,7 +206,7 @@ const GalaxyDashboard: React.FC = () => {
         </button>
       </div>
 
-      {/* Receive Signal Button - Moved up slightly on mobile to clear Ticker */}
+      {/* Receive Signal Button */}
       <div className="absolute bottom-24 md:bottom-16 right-6 md:right-10 z-30">
         <button
            onClick={handleSignalClick}
@@ -226,7 +217,7 @@ const GalaxyDashboard: React.FC = () => {
         </button>
       </div>
 
-      {/* Render User Stars (Z-10 ensures they are above planets but below modals) */}
+      {/* Render User Stars */}
       {stars.map((star) => (
         <Star 
           key={star.id} 
@@ -236,7 +227,6 @@ const GalaxyDashboard: React.FC = () => {
       ))}
 
       {/* --- MODALS --- */}
-
       <MemoryModal
         isOpen={modalOpen}
         position={pendingCoords}
@@ -267,7 +257,7 @@ const GalaxyDashboard: React.FC = () => {
       />
 
       {/* Guidance Text for Empty State */}
-      {stars.length === 0 && !modalOpen && !isBirthday && (
+      {stars.length === 0 && !modalOpen && birthdayPhase === 'countdown' && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.5 }}

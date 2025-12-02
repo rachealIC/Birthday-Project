@@ -96,11 +96,14 @@ export const INITIAL_STARS = [
 
 // --- UTILITY FUNCTIONS ---
 
-export const calculateLevel = (): number => {
-  const today = new Date();
-  let age = today.getFullYear() - BIRTHDAY.getFullYear();
-  const m = today.getMonth() - BIRTHDAY.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < BIRTHDAY.getDate())) {
+/**
+ * Calculates current level (Age).
+ * @param referenceDate Optional date to calculate age against (e.g., TARGET_DATE for simulations)
+ */
+export const calculateLevel = (referenceDate: Date = new Date()): number => {
+  let age = referenceDate.getFullYear() - BIRTHDAY.getFullYear();
+  const m = referenceDate.getMonth() - BIRTHDAY.getMonth();
+  if (m < 0 || (m === 0 && referenceDate.getDate() < BIRTHDAY.getDate())) {
     age--;
   }
   return age;
