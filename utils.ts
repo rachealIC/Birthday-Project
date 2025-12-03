@@ -59,37 +59,51 @@ export const MESSAGES = [
 export const INITIAL_STARS = [
   { 
     id: "init-1", 
-    x: 20, 
-    y: 30, 
-    memory: "The quiet peace of a sunrise walk before the world wakes up.", 
+    x: 50, 
+    y: 50, 
+    memory: "Officially achieved the Google Cloud Certified Generative AI Leader certification.", 
     timestamp: Date.now() 
   },
   { 
     id: "init-2", 
-    x: 75, 
-    y: 25, 
-    memory: "Laughing until my stomach hurt with friends over nothing at all.", 
+    x: 20, 
+    y: 75, 
+    memory: "Successfully navigated a career transition from Political Science to Software Development.", 
     timestamp: Date.now() 
   },
   { 
     id: "init-3", 
-    x: 50, 
-    y: 50, 
-    memory: "Deploying my first major AI model and watching it work.", 
+    x: 80, 
+    y: 25, 
+    memory: "Guided over 370 beginners into tech roles across 6 cohorts in the last two years.", 
     timestamp: Date.now() 
   },
   { 
     id: "init-4", 
-    x: 80, 
-    y: 70, 
-    memory: "Coffee with Mom on a rainy Tuesday afternoon.", 
+    x: 25, 
+    y: 25, 
+    memory: "Optimized a critical Java system, reducing processing time from 30 minutes to just 1 minute.", 
     timestamp: Date.now() 
   },
   { 
     id: "init-5", 
-    x: 30, 
-    y: 80, 
-    memory: "Realizing I am capable of more than I imagined.", 
+    x: 75, 
+    y: 70, 
+    memory: "Traveled internationally for the first time to attend PyCon Africa in South Africa.", 
+    timestamp: Date.now() 
+  },
+  { 
+    id: "init-6", 
+    x: 45, 
+    y: 85, 
+    memory: "Led a workshop on Mastering Prompt Engineering and NotebookLM, training organizational teams.", 
+    timestamp: Date.now() 
+  },
+  { 
+    id: "init-7", 
+    x: 55, 
+    y: 15, 
+    memory: "Attended 'I Am Remarkable' at Google, overcoming the fear of sharing my professional achievements.", 
     timestamp: Date.now() 
   }
 ];

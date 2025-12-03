@@ -10,6 +10,3 @@ export interface Coordinates {
   x: number;
   y: number;
 }
-
-// Module declaration for canvas-confetti to fix TypeScript errors
-declare module 'canvas-confetti';
