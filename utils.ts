@@ -56,46 +56,43 @@ export const MESSAGES = [
 ];
 
 // --- MUSEUM MODE: INITIAL STARS ---
-
-
 export const INITIAL_STARS = [
   { 
     id: "init-1", 
     x: 20, 
     y: 30, 
-    memory: "I have upgraded my home setup to  egonomic table and chair", 
+    memory: "The quiet peace of a sunrise walk before the world wakes up.", 
     timestamp: Date.now() 
   },
   { 
     id: "init-2", 
     x: 75, 
     y: 25, 
-    memory: "I have finally sat in a plane and travelled internationally", 
+    memory: "Laughing until my stomach hurt with friends over nothing at all.", 
     timestamp: Date.now() 
   },
   { 
     id: "init-3", 
     x: 50, 
     y: 50, 
-    memory: "Travelled to South Africa, all expense paid by ME.", 
+    memory: "Deploying my first major AI model and watching it work.", 
     timestamp: Date.now() 
   },
   { 
     id: "init-4", 
     x: 80, 
     y: 70, 
-    memory: "I am now a Google Cloud Generative AI Leader", 
+    memory: "Coffee with Mom on a rainy Tuesday afternoon.", 
     timestamp: Date.now() 
   },
   { 
     id: "init-5", 
     x: 30, 
     y: 80, 
-    memory: "I wrote my first certification exams and passed.", 
+    memory: "Realizing I am capable of more than I imagined.", 
     timestamp: Date.now() 
   }
 ];
-
 
 // --- UTILITY FUNCTIONS ---
 
